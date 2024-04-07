@@ -11,6 +11,18 @@ const Share = () => {
   const [file, setFile] = useState(null)
   const [desc, setDesc] = useState("")
 
+  const upload = async() =>  {
+    try {
+      // we create form data because we cant send the file directly so we send it in a formData
+      const formData = new FormData();
+      formData.append("file", file)
+      const res = await makeRequest.post("/upload" , formData);
+      return res.data
+    } catch (err) {
+      console.log(err)
+    }
+  }
+
   const { currentUser } = useContext(AuthContext)
 
   const queryClient = useQueryClient()
@@ -20,14 +32,16 @@ const Share = () => {
     return makeRequest.post("/posts", newPost);
   }, {
     onSuccess: () => {
-      //refetch data already getted before
+      //refetch data already getted before in posts.jsx
       queryClient.invalidateQueries("posts")
     },
   })
 
-  const handleClick = e => {
-    e.preventDefault()
-    mutation.mutate({desc})
+  const handleClick =async (e) => {
+    e.preventDefault();
+    let imgUrl = "";
+    if (file) imgUrl = await upload();
+    mutation.mutate({desc , img: imgUrl});
     
   };
 

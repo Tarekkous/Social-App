@@ -8,6 +8,7 @@ import authRoutes from "./routes/auth.js";
 import commentRoutes from "./routes/comments.js";
 import likeRoutes from "./routes/likes.js";
 import postRoutes from "./routes/posts.js";
+import multer from "multer";
 
 
 
@@ -18,8 +19,27 @@ const corsOptions ={
 }
 app.use(cors(corsOptions));
 app.use(cookieParser())
-app.use(express.json())
 
+// function to upload file and store it in the server !!*  we use (multer)  and diskstorage to specify the extension of the file in the destination
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+      cb(null, '../client/public/upload')
+    },
+    filename: function (req, file, cb) {
+      cb(null, Date.now() + file.originalname)
+    },
+  })
+  
+  const upload = multer({ storage: storage })
+
+  app.post("/api/upload", upload.single("file"), (req,res) => {
+    const file = req.file
+    res.status(200).json(file.filename)
+  })
+
+
+
+app.use(express.json())
 app.use("/api/auth", authRoutes)
 app.use("/api/users", userRoutes)
 app.use("/api/posts", postRoutes)
@@ -37,4 +57,4 @@ const PORT = process.env.PORT || 8800
 
 app.listen(PORT, () => {
     console.log("connected to backend")
-})
+});
