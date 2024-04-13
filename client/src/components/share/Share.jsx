@@ -11,12 +11,12 @@ const Share = () => {
   const [file, setFile] = useState(null)
   const [desc, setDesc] = useState("")
 
-  const upload = async() =>  {
+  const upload = async () => {
     try {
       // we create form data because we cant send the file directly so we send it in a formData
       const formData = new FormData();
       formData.append("file", file)
-      const res = await makeRequest.post("/upload" , formData);
+      const res = await makeRequest.post("/upload", formData);
       return res.data
     } catch (err) {
       console.log(err)
@@ -27,7 +27,8 @@ const Share = () => {
 
   const queryClient = useQueryClient()
 
-// On fait appel à l'api en utilisant mutation de reactquery (pour pouvoir utiliser les POSTS partout dans l'app)
+  //!Mutation (on publie un post et on actualise la fonction GET des posts dans posts.jsx)
+  // On fait appel à l'api en utilisant mutation de reactquery (pour pouvoir utiliser les POSTS partout dans l'app)
   const mutation = useMutation((newPost) => {
     return makeRequest.post("/posts", newPost);
   }, {
@@ -37,12 +38,14 @@ const Share = () => {
     },
   })
 
-  const handleClick =async (e) => {
+  const handleClick = async (e) => {
     e.preventDefault();
     let imgUrl = "";
     if (file) imgUrl = await upload();
-    mutation.mutate({desc , img: imgUrl});
-    
+    mutation.mutate({ desc, img: imgUrl });
+    setDesc = ("")
+    setFile = null
+
   };
 
 
@@ -50,13 +53,18 @@ const Share = () => {
     <div className="share">
       <div className="container">
         <div className="top">
-          <img
-            src={currentUser.profilePic}
-            alt=""
-          />
-          <input type="text"
-            placeholder={`What's on your mind ${currentUser.name}?`}
-            onChange={(e) => setDesc(e.target.value)} />
+          <div className="left">
+            <img
+              src={currentUser.profilePic}
+              alt=""
+            />
+            <input type="text"
+              placeholder={`What's on your mind ${currentUser.name}?`}
+              onChange={(e) => setDesc(e.target.value)} value={desc}/>
+          </div>
+          <div className="right">
+            {file && <img className="file" alt="" src={URL.createObjectURL(file)}></img>}
+          </div>
         </div>
         <hr />
         <div className="bottom">
