@@ -6,14 +6,40 @@ import ShareOutlinedIcon from "@mui/icons-material/ShareOutlined";
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import { Link } from "react-router-dom";
 import Comments from "../comments/Comments";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import moment from "moment";
+import { useMutation, useQuery, useQueryClient } from "react-query";
+import { AuthContext } from "../../context/authContext";
+import { makeRequest } from "../../axios";
 
 const Post = ({ post }) => {
+
   const [commentOpen, setCommentOpen] = useState(false);
 
-  //TEMPORARY
-  const liked = false;
+  const { currentUser } = useContext(AuthContext)
+
+  const { isLoading, error, data } = useQuery(["likes", post.id], () =>
+    makeRequest.get("/likes?postId=" + post.id).then((res) => {
+      return res.data
+    })
+  )
+
+  const queryClient = useQueryClient()
+
+  const mutation = useMutation((liked) => {
+    if (liked) return makeRequest.delete("/likes?postId="+ post.id);
+    return makeRequest.post("/likes", {postId : post.id})
+  }, {
+    onSuccess: () => {
+      //refetch likes already getted
+      queryClient.invalidateQueries(["likes"])
+    },
+  })
+
+
+  const handleLike = () => {
+    mutation.mutate(data.includes(currentUser.id))
+  }
 
   return (
     <div className="post">
@@ -39,8 +65,10 @@ const Post = ({ post }) => {
         </div>
         <div className="info">
           <div className="item">
-            {liked ? <FavoriteOutlinedIcon /> : <FavoriteBorderOutlinedIcon />}
-            12 Likes
+            {isLoading? "loading" :  Array.isArray(data) && data.includes(currentUser.id) ?   
+            (<FavoriteOutlinedIcon style={{ color: "red" }} onClick={handleLike} />)
+            : (<FavoriteBorderOutlinedIcon onClick={handleLike} />)}
+            {Array.isArray(data) && data.length}
           </div>
           <div className="item" onClick={() => setCommentOpen(!commentOpen)}>
             <TextsmsOutlinedIcon />
@@ -51,7 +79,7 @@ const Post = ({ post }) => {
             Share
           </div>
         </div>
-        {commentOpen && <Comments postId={post.id}/>}
+        {commentOpen && <Comments postId={post.id} />}
       </div>
     </div>
   );

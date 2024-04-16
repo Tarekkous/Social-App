@@ -12,7 +12,7 @@ const Posts = () => {
     makeRequest.get("/posts").then((res) => {
       return res.data
     })
-  )
+  );
 
   // !! => J'ai utilisé le console.log dans useEffect , pour éviter que les logs s'affichent plusieurs fois dans la console du navigateur à chaque réexécution du code 
   useEffect(() => {
