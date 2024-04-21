@@ -18,7 +18,7 @@ import { AuthContext } from "../../context/authContext";
 
 const Profile = () => {
 
-
+//!  TROUVER LERREUR DE KEY dans le navigateur !!!!!!!!!!!!!!!!!!!!
   const { currentUser } = useContext(AuthContext)
 
 
@@ -26,12 +26,39 @@ const Profile = () => {
 
   const userId = parseInt(useLocation().pathname.split("/")[2])
 
+  // Getting profileUser infos
   const { isLoading, error, data } = useQuery(["user"], () =>
     makeRequest.get("/users/find/" + userId).then((res) => {
       return res.data
     })
   );
-  console.log(data)
+
+
+  // Getting followers
+  const { isLoading: rlisLoading, data: relationshipData } = useQuery(["relationship"], () =>
+    makeRequest.get("/relationships?followedUserId=" + userId).then((res) => {
+      return res.data
+    })
+  );
+
+
+  const queryClient = useQueryClient()
+
+  const mutation = useMutation((following) => {
+    if (following) return makeRequest.delete("/relationships?userId="+ userId);
+    return makeRequest.post("/relationships", {userId})
+  }, {
+    onSuccess: () => {
+      //refetch likes already getted
+      queryClient.invalidateQueries(["relationship"])
+    },
+  })
+
+
+
+  const handleFollow = () => {
+    mutation.mutate(relationshipData.includes(currentUser.id))
+  }
 
 
 
@@ -87,12 +114,14 @@ const Profile = () => {
                 </div>
               </div>
 
-              {userId === currentUser.id ? (
-                <button>Update</button>
-              ) : (
-                <button>Follow</button>
-              )}
+              {rlisLoading ? "Loading" :
+                userId === currentUser.id ? (
+                  <button>Update</button>
+                ) : (
+                  <button onClick={handleFollow}>{relationshipData.includes(currentUser.id) ? "Following" : "Follow"}  </button>
+                )}
             </div>
+
             <div className="right">
               <EmailOutlinedIcon />
               <MoreVertIcon />

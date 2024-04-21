@@ -6,7 +6,7 @@ import ShareOutlinedIcon from "@mui/icons-material/ShareOutlined";
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import { Link } from "react-router-dom";
 import Comments from "../comments/Comments";
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import moment from "moment";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import { AuthContext } from "../../context/authContext";
@@ -22,7 +22,8 @@ const Post = ({ post }) => {
     makeRequest.get("/likes?postId=" + post.id).then((res) => {
       return res.data
     })
-  )
+  );
+
 
   const queryClient = useQueryClient()
 

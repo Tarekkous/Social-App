@@ -6,7 +6,6 @@ import moment from "moment";
 export const getPosts = (req, res) => {
 
     const token = req.cookies.accessToken
-    // console.log(token)
 
     if (!token) return res.status(401).json("not logged in !! ")
 

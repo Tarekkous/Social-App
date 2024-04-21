@@ -8,6 +8,7 @@ import authRoutes from "./routes/auth.js";
 import commentRoutes from "./routes/comments.js";
 import likeRoutes from "./routes/likes.js";
 import postRoutes from "./routes/posts.js";
+import relationshipsRoutes from "./routes/relationships.js"
 import multer from "multer";
 
 
@@ -45,6 +46,7 @@ app.use("/api/users", userRoutes)
 app.use("/api/posts", postRoutes)
 app.use("/api/comments", commentRoutes)
 app.use("/api/likes", likeRoutes)
+app.use("/api/relationships", relationshipsRoutes)
 
 
 app.get("/", (req, res) => {
