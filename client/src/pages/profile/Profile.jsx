@@ -18,7 +18,6 @@ import { AuthContext } from "../../context/authContext";
 
 const Profile = () => {
 
-//!  TROUVER LERREUR DE KEY dans le navigateur !!!!!!!!!!!!!!!!!!!!
   const { currentUser } = useContext(AuthContext)
 
 
@@ -35,7 +34,7 @@ const Profile = () => {
 
 
   // Getting followers
-  const { isLoading: rlisLoading, data: relationshipData } = useQuery(["relationship"], () =>
+  const { isLoading: rlisLoading, data: relationshipData } = useQuery(["relationship", userId], () =>
     makeRequest.get("/relationships?followedUserId=" + userId).then((res) => {
       return res.data
     })

@@ -25,6 +25,7 @@ const Post = ({ post }) => {
   );
 
 
+
   const queryClient = useQueryClient()
 
   const mutation = useMutation((liked) => {
