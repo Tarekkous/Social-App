@@ -9,15 +9,17 @@ import LanguageIcon from "@mui/icons-material/Language";
 import EmailOutlinedIcon from "@mui/icons-material/EmailOutlined";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import Posts from "../../components/posts/Posts"
-import moment from "moment";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import { useLocation } from "react-router-dom";
 import { makeRequest } from "../../axios";
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { AuthContext } from "../../context/authContext";
+import UpdateProfile from "../../components/updateProfile/UpdateProfile";
+
 
 const Profile = () => {
 
+  const [openUpdate, setOpenUpdate] = useState(false)
   const { currentUser } = useContext(AuthContext)
 
 
@@ -44,8 +46,8 @@ const Profile = () => {
   const queryClient = useQueryClient()
 
   const mutation = useMutation((following) => {
-    if (following) return makeRequest.delete("/relationships?userId="+ userId);
-    return makeRequest.post("/relationships", {userId})
+    if (following) return makeRequest.delete("/relationships?userId=" + userId);
+    return makeRequest.post("/relationships", { userId })
   }, {
     onSuccess: () => {
       //refetch likes already getted
@@ -69,12 +71,12 @@ const Profile = () => {
       {isLoading ? "loading" : <>
         <div className="images">
           <img
-            src={data.coverPic}
+            src={"/upload/" + data.coverPic}
             alt=""
             className="cover"
           />
           <img
-            src={data.profilePic}
+            src={"/upload/" + data.profilePic}
             alt=""
             className="profilePic"
           />
@@ -115,7 +117,7 @@ const Profile = () => {
 
               {rlisLoading ? "Loading" :
                 userId === currentUser.id ? (
-                  <button>Update</button>
+                  <button onClick={() => setOpenUpdate(true)}>Update</button>
                 ) : (
                   <button onClick={handleFollow}>{relationshipData.includes(currentUser.id) ? "Following" : "Follow"}  </button>
                 )}
@@ -126,9 +128,10 @@ const Profile = () => {
               <MoreVertIcon />
             </div>
           </div>
-          <Posts  userId = {userId}/>
+          <Posts userId={userId} />
         </div>
       </>}
+      {openUpdate && <UpdateProfile setOpenUpdate={setOpenUpdate}  user = {data}/>}
     </div>
   );
 };
