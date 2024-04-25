@@ -15,11 +15,11 @@ const Posts = ({userId}) => {
   );
 
   // !! => J'ai utilisé le console.log dans useEffect , pour éviter que les logs s'affichent plusieurs fois dans la console du navigateur à chaque réexécution du code 
-  useEffect(() => {
-    if (data) {
-      console.log(data);
-    }
-  }, [data]);
+  // useEffect(() => {
+  //   if (data) {
+  //     console.log("All posts" + JSON.stringify(data));
+  //   }
+  // }, [data]);
 
 
   return <div className="posts">

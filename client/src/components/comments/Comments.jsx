@@ -18,7 +18,6 @@ const Comments = ({ postId }) => {
     })
   )
 
-console.log("comments",data)
 
 const queryClient = useQueryClient()
 
@@ -35,7 +34,7 @@ const queryClient = useQueryClient()
   const handleClick = async (e) => {
     e.preventDefault();
     mutation.mutate({ desc, postId });
-    setDesc = ("")
+    setDesc("")
 
   };
 

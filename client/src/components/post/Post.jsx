@@ -15,6 +15,8 @@ import { makeRequest } from "../../axios";
 const Post = ({ post }) => {
 
   const [commentOpen, setCommentOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+
 
   const { currentUser } = useContext(AuthContext)
 
@@ -24,13 +26,20 @@ const Post = ({ post }) => {
     })
   );
 
+  // récupérer les commentaire pour le nombre de commentaire ( meme fonction que dans le composant commentaires)
+  const { data: commentsData, isLoading: commentsLoading } = useQuery(["comments", post.id], () =>
+    makeRequest.get("/comments?postId=" + post.id).then((res) => {
+      return res.data
+    })
+  );
 
 
   const queryClient = useQueryClient()
 
+  //! DELETE / ADD LIKES
   const mutation = useMutation((liked) => {
-    if (liked) return makeRequest.delete("/likes?postId="+ post.id);
-    return makeRequest.post("/likes", {postId : post.id})
+    if (liked) return makeRequest.delete("/likes?postId=" + post.id);
+    return makeRequest.post("/likes", { postId: post.id })
   }, {
     onSuccess: () => {
       //refetch likes already getted
@@ -39,9 +48,27 @@ const Post = ({ post }) => {
   })
 
 
+//! DELETE POST
+  const deleteMutation = useMutation((postId) => {
+    return makeRequest.delete(`/posts/${postId}`)
+  }, {
+    onSuccess: () => {
+      //refetch likes already getted
+      queryClient.invalidateQueries(["posts"])
+    },
+  });
+
+
+
   const handleLike = () => {
     mutation.mutate(data.includes(currentUser.id))
+  };
+
+  const handleDelete = () => {
+    deleteMutation.mutate(post.id)
   }
+
+
 
   return (
     <div className="post">
@@ -59,7 +86,8 @@ const Post = ({ post }) => {
               <span className="date">{moment(post.createdAt).fromNow()}</span>
             </div>
           </div>
-          <MoreHorizIcon />
+          <MoreHorizIcon onClick={() => setMenuOpen(!menuOpen)} />
+          {menuOpen && post.userId === currentUser.id && (<button onClick={handleDelete}>delete</button>)}
         </div>
         <div className="content">
           <p>{post.desc}</p>
@@ -67,14 +95,14 @@ const Post = ({ post }) => {
         </div>
         <div className="info">
           <div className="item">
-            {isLoading? "loading" :  Array.isArray(data) && data.includes(currentUser.id) ?   
-            (<FavoriteOutlinedIcon style={{ color: "red" }} onClick={handleLike} />)
-            : (<FavoriteBorderOutlinedIcon onClick={handleLike} />)}
+            {isLoading ? "loading" : Array.isArray(data) && data.includes(currentUser.id) ?
+              (<FavoriteOutlinedIcon style={{ color: "red" }} onClick={handleLike} />)
+              : (<FavoriteBorderOutlinedIcon onClick={handleLike} />)}
             {Array.isArray(data) && data.length}
           </div>
           <div className="item" onClick={() => setCommentOpen(!commentOpen)}>
             <TextsmsOutlinedIcon />
-            12 Comments
+            {commentsLoading ? "Loading..." : `${commentsData.length} comments`}
           </div>
           <div className="item">
             <ShareOutlinedIcon />
